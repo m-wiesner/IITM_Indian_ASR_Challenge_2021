@@ -39,8 +39,19 @@ local/create_devset.py data/all_${language} data/local/dev_splits
 ./utils/fix_data_dir.sh data/train_${language}_jhu 
 ./utils/fix_data_dir.sh data/dev_${language}_jhu
 
-./utils/data/remove_dup_utts.sh ${max_dups} data/train_${language}_jhu data/train_${language}_jhu_nodup
-for d in train_${language}_jhu train_${language}_jhu_nodup dev_${language}_jhu; do
+# For eval we can only use the train data and the jhu set has some dev in it.
+# We use the intersection of the train sets as the training set, and the 
+# left-over part as the dev set.
+./utils/copy_data_dir.sh data/train_${language}_jhu data/train_${language}_intersect_jhu
+cp data/train_${language}/text data/train_${language}_intersect_jhu
+./utils/fix_data_dir.sh data/train_${language}_intersect_jhu
+./utils/copy_data_dir.sh data/train_${language}_jhu data/train_dev_${language}_jhu
+./utils/filter_scp.pl --exclude -f 1 data/train_${language}_intersect_jhu/text data/train_${language}_jhu/text > data/train_dev_${language}_jhu/text
+./utils/fix_data_dir.sh data/train_dev_${language}_jhu
+
+ 
+./utils/data/remove_dup_utts.sh ${max_dups} data/train_${language}_intersect_jhu data/train_${language}_final
+for d in train_${language}_jhu train_${language}_intersect_jhu train_${language}_final train_dev_${language}_jhu dev_${language}_jhu; do
   hrs=`awk '{sum+=$4-$3} END{print sum/3600}' data/${d}/segments`
   echo "${d} -- ${hrs} hr of speech"
 done
