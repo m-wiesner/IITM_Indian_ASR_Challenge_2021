@@ -21,6 +21,7 @@ def main():
     parser.add_argument('splits')
     parser.add_argument('--frac-heldout-prompt', type=float, default=0.03)
     parser.add_argument('--frac-heldout-spk', type=float, default=0.03)
+    parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args()
 
     # Load speaker info
@@ -48,6 +49,7 @@ def main():
 
     # Sort the prompts and speakers on the basis of which promts had the
     # the fewest speaker, and which speakers read the fewest prompts.
+    random.seed(args.seed)
     prompts = sorted(prompt2spks.items(), key=lambda x: (len(x[1]), random.random()))
     spks = sorted(spk2prompts.items(), key=lambda x: len(x[1])) 
 

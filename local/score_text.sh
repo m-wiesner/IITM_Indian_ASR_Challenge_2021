@@ -23,8 +23,8 @@ decode=$3
 if $spm; then
   echo "Not Implemented"
 else
-  mkdir -p ${decode}/scoring_kaldi/penalty_${wip}/log
   for wip in $wips; do
+    mkdir -p ${decode}/scoring_kaldi/penalty_${wip}/log
     $train_cmd LMWT=$min_lmwt:$max_lmwt ${decode}/scoring_kaldi/penalty_${wip}/log/best_path.LMWT.log \
       lattice-scale --inv-acoustic-scale=LMWT ark:"gunzip -c ${decode}/lat.1.gz |" ark:- \| \
       lattice-add-penalty --word-ins-penalty=${wip} ark:- ark:- \| \
